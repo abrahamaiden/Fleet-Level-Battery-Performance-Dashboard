@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FLEET-LEVEL - EV Battery Digital Twin</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>FLEET-LEVEL BATTERY PERFORMANCE DASHBOARD</h1>
+            <p class="subtitle">EV Battery Digital Twin & Anomaly Intelligence System</p>
+            <p class="tagline">Real-Time Spatial Intelligence & Predictive Monitoring</p>
+        </header>
+
+        <!-- Main Dashboard -->
+        <div class="dashboard">
+            <!-- Left Sidebar - Metrics Panel -->
+            <aside class="metrics-panel">
+                <h2>PACK METRICS</h2>
+                
+                <!-- Global Stats -->
+                <div class="stat-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Avg Temperature</div>
+                        <div class="stat-value" id="avgTemp">--°C</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Max Temperature</div>
+                        <div class="stat-value" id="maxTemp">--°C</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Min Temperature</div>
+                        <div class="stat-value" id="minTemp">--°C</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Average SoC</div>
+                        <div class="stat-value" id="avgSoC">--%</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Average SoH</div>
+                        <div class="stat-value" id="avgSoH">--%</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Total Voltage</div>
+                        <div class="stat-value" id="totalVoltage">--V</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Total Current</div>
+                        <div class="stat-value" id="totalCurrent">--A</div>
+                    </div>
+                    <div class="stat-card warning">
+                        <div class="stat-label">Warning Cells</div>
+                        <div class="stat-value" id="warningCells">0</div>
+                    </div>
+                    <div class="stat-card critical">
+                        <div class="stat-label">Faulty Cells</div>
+                        <div class="stat-value" id="faultyCells">0</div>
+                    </div>
+                </div>
+
+                <!-- Anomaly Status Display -->
+                <div class="anomaly-status" id="anomalyStatus">
+                    <div class="status-indicator"></div>
+                    <span id="statusText">NORMAL</span>
+                </div>
+
+                <!-- Temperature Chart -->
+                <div class="chart-container">
+                    <h3>Temperature Trend</h3>
+                    <canvas id="tempChart"></canvas>
+                </div>
+
+                <!-- SoH Chart -->
+                <div class="chart-container">
+                    <h3>SoH Distribution</h3>
+                    <canvas id="sohChart"></canvas>
+                </div>
+
+                <!-- Control Buttons -->
+                <div class="controls">
+                    <button class="btn-primary" id="simulateFault">Simulate Fault</button>
+                    <div class="mode-toggle">
+                        <button class="mode-btn active" data-mode="normal">Normal</button>
+                        <button class="mode-btn" data-mode="heatmap">Heatmap</button>
+                        <button class="mode-btn" data-mode="fault">Fault Focus</button>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Battery Pack Grid -->
+            <main class="battery-grid-container">
+                <div class="grid-header">
+                    <h2>BATTERY PACK SPATIAL VIEW</h2>
+                    <div class="grid-info">
+                        <span>8 Rows × 12 Columns = 96 Cells</span>
+                        <span>Lithium-Ion 18650 Format</span>
+                    </div>
+                </div>
+                <div class="battery-grid" id="batteryGrid">
+                    <!-- Battery cells will be generated dynamically -->
+                </div>
+
+                <!-- Temperature Scale Legend -->
+                <div class="temp-legend">
+                    <div class="legend-title">Temperature Scale</div>
+                    <div class="legend-gradient">
+                        <div class="legend-markers">
+                            <span>20°C</span>
+                            <span>28°C</span>
+                            <span>40°C</span>
+                            <span>45°C</span>
+                            <span>55°C+</span>
+                        </div>
+                        <div class="gradient-bar"></div>
+                        <div class="legend-labels">
+                            <span>Cool</span>
+                            <span>Normal</span>
+                            <span>Elevated</span>
+                            <span>Warning</span>
+                            <span>Critical</span>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Hover Tooltip -->
+    <div class="tooltip" id="tooltip">
+        <div class="tooltip-header">
+            <span class="tooltip-title" id="tooltipTitle">Battery Cell</span>
+            <span class="tooltip-status" id="tooltipStatus">NORMAL</span>
+        </div>
+        <div class="tooltip-content">
+            <div class="tooltip-row">
+                <span class="tooltip-label">Temperature:</span>
+                <span class="tooltip-value" id="tooltipTemp">--°C</span>
+            </div>
+            <div class="tooltip-row">
+                <span class="tooltip-label">Voltage:</span>
+                <span class="tooltip-value" id="tooltipVoltage">--V</span>
+            </div>
+            <div class="tooltip-row">
+                <span class="tooltip-label">Current:</span>
+                <span class="tooltip-value" id="tooltipCurrent">--A</span>
+            </div>
+            <div class="tooltip-row">
+                <span class="tooltip-label">State of Charge:</span>
+                <span class="tooltip-value" id="tooltipSoC">--%</span>
+            </div>
+            <div class="tooltip-row">
+                <span class="tooltip-label">State of Health:</span>
+                <span class="tooltip-value" id="tooltipSoH">--%</span>
+            </div>
+            <div class="tooltip-row">
+                <span class="tooltip-label">Resistance:</span>
+                <span class="tooltip-value" id="tooltipResistance">-- mΩ</span>
+            </div>
+            <div class="tooltip-row">
+                <span class="tooltip-label">Cycle Count:</span>
+                <span class="tooltip-value" id="tooltipCycles">--</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
